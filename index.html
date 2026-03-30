@@ -5,708 +5,972 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="영단어 퀴즈">
+  <meta name="apple-mobile-web-app-title" content="TOEIC 매일학습">
   <link rel="apple-touch-icon" href="icon-192.png">
   <link rel="manifest" href="manifest.json">
-  <title>매일 영단어 퀴즈</title>
+  <title>TOEIC 매일학습</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #0f172a;
       color: #e2e8f0;
       min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       padding: 20px;
       padding-top: env(safe-area-inset-top, 20px);
     }
+    .container { max-width: 420px; margin: 0 auto; }
 
-    .header {
-      text-align: center;
-      margin-bottom: 24px;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .header h1 {
-      font-size: 24px;
-      font-weight: 700;
-      margin-bottom: 4px;
-    }
-
-    .header .date {
-      font-size: 14px;
-      color: #94a3b8;
-    }
-
-    .stats {
+    /* ===== 탭 네비게이션 ===== */
+    .tab-nav {
       display: flex;
-      gap: 16px;
-      justify-content: center;
-      margin-bottom: 24px;
-    }
-
-    .stat-box {
       background: #1e293b;
       border-radius: 12px;
-      padding: 12px 20px;
-      text-align: center;
-      min-width: 80px;
+      padding: 4px;
+      margin-bottom: 20px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      background: none;
+      color: #94a3b8;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .tab-btn.active {
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      color: white;
     }
 
-    .stat-box .number {
-      font-size: 24px;
+    /* ===== 공통 스타일 ===== */
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .card {
+      background: #1e293b;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      border: none;
+      border-radius: 12px;
+      padding: 14px 24px;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .btn-primary:active { transform: scale(0.98); opacity: 0.9; }
+    .btn-primary:disabled { opacity: 0.5; }
+
+    /* ===== 홈 화면 ===== */
+    .home-header { text-align: center; margin-bottom: 24px; }
+    .home-header h1 { font-size: 24px; margin-bottom: 4px; }
+    .home-header .date { color: #94a3b8; font-size: 14px; }
+    .home-stats {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .home-stat {
+      flex: 1;
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+    .home-stat .num {
+      font-size: 22px;
       font-weight: 700;
       color: #38bdf8;
     }
-
-    .stat-box .label {
-      font-size: 12px;
+    .home-stat .lbl {
+      font-size: 11px;
       color: #94a3b8;
       margin-top: 2px;
     }
-
-    .streak-box .number {
-      color: #f97316;
-    }
-
-    .progress-bar {
+    .home-stat.streak .num { color: #f97316; }
+    .menu-btn {
+      background: #1e293b;
+      border: 2px solid #334155;
+      border-radius: 14px;
+      padding: 18px 20px;
+      color: #e2e8f0;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
       width: 100%;
-      max-width: 400px;
+      margin-bottom: 10px;
+      text-align: left;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .menu-btn .icon { font-size: 24px; }
+    .menu-btn .info { flex: 1; }
+    .menu-btn .sub { font-size: 12px; color: #94a3b8; font-weight: 400; margin-top: 2px; }
+    .menu-btn .badge {
+      background: #22c55e;
+      color: white;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+    .menu-btn.done { opacity: 0.5; }
+    .menu-btn.done .badge { background: #64748b; }
+
+    /* ===== 단어 퀴즈 ===== */
+    .quiz-progress {
       height: 6px;
       background: #1e293b;
       border-radius: 3px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       overflow: hidden;
     }
-
-    .progress-fill {
+    .quiz-progress-fill {
       height: 100%;
       background: linear-gradient(90deg, #38bdf8, #818cf8);
       border-radius: 3px;
-      transition: width 0.3s ease;
+      transition: width 0.3s;
     }
-
-    .quiz-card {
-      background: #1e293b;
-      border-radius: 20px;
-      padding: 32px 24px;
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-    }
-
-    .quiz-number {
-      font-size: 13px;
-      color: #64748b;
+    .quiz-stats {
+      display: flex;
+      justify-content: space-between;
       margin-bottom: 16px;
+      font-size: 14px;
+      color: #94a3b8;
     }
-
-    .word {
-      font-size: 36px;
+    .quiz-stats .score { color: #38bdf8; font-weight: 700; }
+    .word-display {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .word-display .word {
+      font-size: 34px;
       font-weight: 700;
-      margin-bottom: 8px;
       color: #f8fafc;
+      margin-bottom: 6px;
     }
-
-    .phonetic {
-      font-size: 16px;
+    .word-display .phonetic {
+      font-size: 15px;
       color: #64748b;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
-
-    .part-of-speech {
+    .word-display .pos {
       font-size: 13px;
       color: #818cf8;
-      margin-bottom: 24px;
       font-weight: 500;
     }
-
-    .options {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .option-btn {
+    .options { display: flex; flex-direction: column; gap: 10px; }
+    .opt-btn {
       background: #0f172a;
       border: 2px solid #334155;
       border-radius: 12px;
       padding: 14px 16px;
       color: #e2e8f0;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-      text-align: left;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .option-btn:active {
-      transform: scale(0.98);
-    }
-
-    .option-btn.correct {
-      border-color: #22c55e;
-      background: #052e16;
-      color: #22c55e;
-    }
-
-    .option-btn.wrong {
-      border-color: #ef4444;
-      background: #450a0a;
-      color: #ef4444;
-    }
-
-    .option-btn.reveal {
-      border-color: #22c55e;
-      background: #052e16;
-      color: #22c55e;
-    }
-
-    .option-btn:disabled {
-      cursor: default;
-    }
-
-    .example-sentence {
-      margin-top: 20px;
-      padding: 16px;
-      background: #0f172a;
-      border-radius: 12px;
-      text-align: left;
-      display: none;
-    }
-
-    .example-sentence .en {
       font-size: 15px;
-      color: #cbd5e1;
-      margin-bottom: 6px;
-      line-height: 1.4;
-    }
-
-    .example-sentence .ko {
-      font-size: 14px;
-      color: #64748b;
-      line-height: 1.4;
-    }
-
-    .next-btn {
-      margin-top: 20px;
-      background: linear-gradient(135deg, #38bdf8, #818cf8);
-      border: none;
-      border-radius: 12px;
-      padding: 14px 32px;
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
       cursor: pointer;
-      display: none;
-      width: 100%;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .next-btn:active {
-      transform: scale(0.98);
-      opacity: 0.9;
-    }
-
-    /* Result screen */
-    .result-screen {
-      display: none;
-      text-align: center;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .result-screen .emoji {
-      font-size: 64px;
-      margin-bottom: 16px;
-    }
-
-    .result-screen h2 {
-      font-size: 28px;
-      margin-bottom: 8px;
-    }
-
-    .result-screen .score-text {
-      font-size: 18px;
-      color: #94a3b8;
-      margin-bottom: 24px;
-    }
-
-    .result-screen .score-text span {
-      color: #38bdf8;
-      font-weight: 700;
-    }
-
-    .wrong-list {
-      background: #1e293b;
-      border-radius: 16px;
-      padding: 20px;
       text-align: left;
-      margin-bottom: 24px;
+      -webkit-tap-highlight-color: transparent;
+      transition: all 0.2s;
+    }
+    .opt-btn:active { transform: scale(0.98); }
+    .opt-btn.correct { border-color: #22c55e; background: #052e16; color: #22c55e; }
+    .opt-btn.wrong { border-color: #ef4444; background: #450a0a; color: #ef4444; }
+    .opt-btn.reveal { border-color: #22c55e; background: #052e16; color: #22c55e; }
+    .opt-btn:disabled { cursor: default; }
+    .example-box {
+      margin-top: 16px;
+      padding: 14px;
+      background: #0f172a;
+      border-radius: 10px;
+      display: none;
+    }
+    .example-box .en { font-size: 14px; color: #cbd5e1; margin-bottom: 4px; line-height: 1.4; }
+    .example-box .ko { font-size: 13px; color: #64748b; line-height: 1.4; }
+    .next-btn {
+      margin-top: 16px;
+      display: none;
     }
 
-    .wrong-list h3 {
-      font-size: 16px;
-      color: #f97316;
+    /* ===== 독해 ===== */
+    .reading-title {
+      font-size: 14px;
+      color: #818cf8;
+      font-weight: 600;
       margin-bottom: 12px;
     }
+    .reading-passage {
+      font-size: 15px;
+      line-height: 1.7;
+      color: #cbd5e1;
+      margin-bottom: 20px;
+      word-break: break-word;
+    }
+    .reading-question {
+      font-size: 15px;
+      font-weight: 600;
+      color: #f8fafc;
+      margin-bottom: 14px;
+    }
+    .translation-box {
+      margin-top: 16px;
+      padding: 14px;
+      background: #0f172a;
+      border-radius: 10px;
+      display: none;
+    }
+    .translation-box p {
+      font-size: 14px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
+    .translation-box .label {
+      font-size: 12px;
+      color: #818cf8;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
 
+    /* ===== 결과 화면 ===== */
+    .result-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .result-header .emoji { font-size: 56px; margin-bottom: 10px; }
+    .result-header h2 { font-size: 24px; margin-bottom: 6px; }
+    .result-header .score-text { color: #94a3b8; font-size: 16px; }
+    .result-header .score-text span { color: #38bdf8; font-weight: 700; }
+    .wrong-review { margin-bottom: 20px; }
+    .wrong-review h3 { font-size: 15px; color: #f97316; margin-bottom: 10px; }
     .wrong-item {
       padding: 10px 0;
       border-bottom: 1px solid #334155;
     }
+    .wrong-item:last-child { border-bottom: none; }
+    .wrong-item .wi-word { font-weight: 600; color: #f8fafc; font-size: 15px; }
+    .wrong-item .wi-meaning { font-size: 13px; color: #94a3b8; margin-top: 2px; }
 
-    .wrong-item:last-child {
-      border-bottom: none;
+    /* ===== 달력 ===== */
+    .cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
     }
-
-    .wrong-item .w-word {
-      font-weight: 600;
-      color: #f8fafc;
-    }
-
-    .wrong-item .w-meaning {
-      font-size: 14px;
-      color: #94a3b8;
-      margin-top: 2px;
-    }
-
-    .retry-btn {
-      background: linear-gradient(135deg, #38bdf8, #818cf8);
-      border: none;
-      border-radius: 12px;
-      padding: 14px 32px;
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
+    .cal-header h2 { font-size: 18px; }
+    .cal-nav {
+      background: none;
+      border: 1px solid #334155;
+      color: #e2e8f0;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       cursor: pointer;
-      width: 100%;
+      font-size: 16px;
       -webkit-tap-highlight-color: transparent;
     }
-
-    /* Start screen */
-    .start-screen {
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+    .cal-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    .cal-day {
+      aspect-ratio: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      flex: 1;
-      width: 100%;
-      max-width: 400px;
-      text-align: center;
-    }
-
-    .start-screen .logo {
-      font-size: 72px;
-      margin-bottom: 16px;
-    }
-
-    .start-screen h2 {
-      font-size: 28px;
-      margin-bottom: 8px;
-    }
-
-    .start-screen p {
-      color: #94a3b8;
-      margin-bottom: 32px;
-      font-size: 16px;
-    }
-
-    .start-btn {
-      background: linear-gradient(135deg, #38bdf8, #818cf8);
-      border: none;
-      border-radius: 14px;
-      padding: 16px 48px;
-      color: white;
-      font-size: 18px;
-      font-weight: 600;
+      border-radius: 10px;
+      font-size: 13px;
+      position: relative;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
-
-    .completed-msg {
-      display: none;
-      text-align: center;
-      width: 100%;
-      max-width: 400px;
-      margin-top: 40px;
+    .cal-day.empty { cursor: default; }
+    .cal-day.today {
+      border: 2px solid #38bdf8;
+    }
+    .cal-day.has-data {
+      background: #1e293b;
+    }
+    .cal-day .day-num {
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .cal-day .day-dots {
+      display: flex;
+      gap: 2px;
+      margin-top: 2px;
+    }
+    .cal-day .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+    }
+    .dot.vocab { background: #38bdf8; }
+    .dot.read { background: #a78bfa; }
+    .cal-day.perfect {
+      background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(129,140,248,0.2));
     }
 
-    .completed-msg .emoji { font-size: 48px; margin-bottom: 12px; }
-    .completed-msg p { color: #94a3b8; font-size: 16px; line-height: 1.5; }
+    /* 달력 상세 */
+    .cal-detail {
+      display: none;
+      margin-top: 16px;
+    }
+    .cal-detail .detail-date {
+      font-size: 14px;
+      color: #94a3b8;
+      margin-bottom: 10px;
+    }
+    .detail-scores {
+      display: flex;
+      gap: 12px;
+    }
+    .detail-score {
+      flex: 1;
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+    .detail-score .ds-label {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 4px;
+    }
+    .detail-score .ds-value {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .detail-score .ds-value.v-color { color: #38bdf8; }
+    .detail-score .ds-value.r-color { color: #a78bfa; }
+
+    .legend {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 12px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .legend span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .legend .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
   </style>
 </head>
 <body>
+<div class="container">
 
-  <!-- Start Screen -->
-  <div class="start-screen" id="startScreen">
-    <div class="logo">📚</div>
-    <h2>매일 영단어 퀴즈</h2>
-    <p>매일 10개의 영단어를 학습하세요</p>
-    <button class="start-btn" onclick="startQuiz()">오늘의 퀴즈 시작</button>
+  <!-- 탭 네비게이션 -->
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="showTab('home')">홈</button>
+    <button class="tab-btn" onclick="showTab('calendar')">달력</button>
   </div>
 
-  <!-- Quiz Screen -->
-  <div id="quizScreen" style="display:none; width:100%; max-width:400px; display:none; flex-direction:column; align-items:center;">
-    <div class="header">
-      <h1>매일 영단어 퀴즈</h1>
-      <div class="date" id="todayDate"></div>
+  <!-- ===== 홈 화면 ===== -->
+  <div class="screen active" id="homeScreen">
+    <div class="home-header">
+      <h1>TOEIC 매일학습</h1>
+      <div class="date" id="homeDate"></div>
+    </div>
+    <div class="home-stats">
+      <div class="home-stat streak">
+        <div class="num" id="homeStreak">0</div>
+        <div class="lbl">연속 출석</div>
+      </div>
+      <div class="home-stat">
+        <div class="num" id="homeTotalWords">0</div>
+        <div class="lbl">학습 단어</div>
+      </div>
+      <div class="home-stat">
+        <div class="num" id="homeTotalReadings">0</div>
+        <div class="lbl">독해 완료</div>
+      </div>
     </div>
 
-    <div class="stats">
-      <div class="stat-box">
-        <div class="number" id="scoreDisplay">0</div>
-        <div class="label">맞은 수</div>
+    <button class="menu-btn" id="vocabMenuBtn" onclick="startVocabQuiz()">
+      <div class="icon">📝</div>
+      <div class="info">
+        <div>영단어 퀴즈</div>
+        <div class="sub">오늘의 10문제</div>
       </div>
-      <div class="stat-box streak-box">
-        <div class="number" id="streakDisplay">0</div>
-        <div class="label">연속 출석</div>
-      </div>
-    </div>
+      <div class="badge" id="vocabBadge">도전</div>
+    </button>
 
-    <div class="progress-bar">
-      <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-    </div>
-
-    <div class="quiz-card" id="quizCard">
-      <div class="quiz-number" id="quizNumber"></div>
-      <div class="word" id="quizWord"></div>
-      <div class="phonetic" id="quizPhonetic"></div>
-      <div class="part-of-speech" id="quizPos"></div>
-      <div class="options" id="quizOptions"></div>
-      <div class="example-sentence" id="exampleSentence">
-        <div class="en" id="exampleEn"></div>
-        <div class="ko" id="exampleKo"></div>
+    <button class="menu-btn" id="readMenuBtn" onclick="startReading()">
+      <div class="icon">📖</div>
+      <div class="info">
+        <div>독해 문제</div>
+        <div class="sub">오늘의 3문제</div>
       </div>
-      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">다음 문제</button>
+      <div class="badge" id="readBadge">도전</div>
+    </button>
+  </div>
+
+  <!-- ===== 단어 퀴즈 ===== -->
+  <div class="screen" id="vocabScreen">
+    <div class="quiz-stats">
+      <span id="vocabNum"></span>
+      <span>맞은 수: <span class="score" id="vocabScore">0</span></span>
+    </div>
+    <div class="quiz-progress">
+      <div class="quiz-progress-fill" id="vocabProgress" style="width:0%"></div>
+    </div>
+    <div class="card">
+      <div class="word-display">
+        <div class="word" id="vWord"></div>
+        <div class="phonetic" id="vPhonetic"></div>
+        <div class="pos" id="vPos"></div>
+      </div>
+      <div class="options" id="vOptions"></div>
+      <div class="example-box" id="vExample">
+        <div class="en" id="vExEn"></div>
+        <div class="ko" id="vExKo"></div>
+      </div>
+      <button class="btn-primary next-btn" id="vNextBtn" onclick="vocabNext()">다음 문제</button>
     </div>
   </div>
 
-  <!-- Result Screen -->
-  <div class="result-screen" id="resultScreen">
-    <div class="emoji" id="resultEmoji"></div>
-    <h2 id="resultTitle"></h2>
-    <div class="score-text" id="resultScore"></div>
-    <div class="wrong-list" id="wrongList" style="display:none;">
+  <!-- ===== 독해 ===== -->
+  <div class="screen" id="readScreen">
+    <div class="quiz-stats">
+      <span id="readNum"></span>
+      <span>맞은 수: <span class="score" id="readScore">0</span></span>
+    </div>
+    <div class="quiz-progress">
+      <div class="quiz-progress-fill" id="readProgress" style="width:0%"></div>
+    </div>
+    <div class="card">
+      <div class="reading-title" id="rTitle"></div>
+      <div class="reading-passage" id="rPassage"></div>
+      <div class="reading-question" id="rQuestion"></div>
+      <div class="options" id="rOptions"></div>
+      <div class="translation-box" id="rTranslation">
+        <div class="label">해석</div>
+        <p id="rTransText"></p>
+      </div>
+      <button class="btn-primary next-btn" id="rNextBtn" onclick="readNext()">다음 문제</button>
+    </div>
+  </div>
+
+  <!-- ===== 단어 결과 ===== -->
+  <div class="screen" id="vocabResultScreen">
+    <div class="result-header">
+      <div class="emoji" id="vrEmoji"></div>
+      <h2 id="vrTitle"></h2>
+      <div class="score-text" id="vrScore"></div>
+    </div>
+    <div class="card wrong-review" id="vrWrongList" style="display:none;">
       <h3>틀린 단어 복습</h3>
-      <div id="wrongItems"></div>
+      <div id="vrWrongItems"></div>
     </div>
-    <button class="retry-btn" onclick="location.reload()">홈으로 돌아가기</button>
+    <button class="btn-primary" onclick="goHome()">홈으로</button>
   </div>
 
-  <!-- Completed Today -->
-  <div class="completed-msg" id="completedMsg">
-    <div class="emoji">🎉</div>
-    <p>오늘의 퀴즈를 이미 완료했어요!<br>내일 다시 도전하세요.</p>
+  <!-- ===== 독해 결과 ===== -->
+  <div class="screen" id="readResultScreen">
+    <div class="result-header">
+      <div class="emoji" id="rrEmoji"></div>
+      <h2 id="rrTitle"></h2>
+      <div class="score-text" id="rrScore"></div>
+    </div>
+    <button class="btn-primary" onclick="goHome()">홈으로</button>
   </div>
 
-  <script>
-    // ==================== 단어 데이터 ====================
-    const WORDS = [
-      { word: "abandon", phonetic: "/əˈbændən/", pos: "동사", meaning: "버리다, 포기하다", wrong1: "채택하다", wrong2: "수리하다", wrong3: "발견하다", exEn: "They had to abandon the sinking ship.", exKo: "그들은 침몰하는 배를 버려야 했다." },
-      { word: "benefit", phonetic: "/ˈbenɪfɪt/", pos: "명사", meaning: "이익, 혜택", wrong1: "손해", wrong2: "규칙", wrong3: "습관", exEn: "Exercise has many health benefits.", exKo: "운동은 건강에 많은 이점이 있다." },
-      { word: "crucial", phonetic: "/ˈkruːʃəl/", pos: "형용사", meaning: "중대한, 결정적인", wrong1: "사소한", wrong2: "느린", wrong3: "부드러운", exEn: "This is a crucial moment in history.", exKo: "이것은 역사에서 결정적인 순간이다." },
-      { word: "decline", phonetic: "/dɪˈklaɪn/", pos: "동사", meaning: "거절하다, 감소하다", wrong1: "수락하다", wrong2: "증가하다", wrong3: "설명하다", exEn: "She declined the invitation politely.", exKo: "그녀는 초대를 정중히 거절했다." },
-      { word: "efficient", phonetic: "/ɪˈfɪʃənt/", pos: "형용사", meaning: "효율적인", wrong1: "낭비적인", wrong2: "느긋한", wrong3: "위험한", exEn: "This engine is very fuel efficient.", exKo: "이 엔진은 매우 연비가 좋다." },
-      { word: "frustrate", phonetic: "/ˈfrʌstreɪt/", pos: "동사", meaning: "좌절시키다", wrong1: "격려하다", wrong2: "축하하다", wrong3: "안내하다", exEn: "The delays frustrated all the passengers.", exKo: "지연은 모든 승객을 좌절시켰다." },
-      { word: "genuine", phonetic: "/ˈdʒenjuɪn/", pos: "형용사", meaning: "진짜의, 진심의", wrong1: "가짜의", wrong2: "평범한", wrong3: "복잡한", exEn: "She showed genuine concern for others.", exKo: "그녀는 다른 사람들에 대한 진심 어린 관심을 보였다." },
-      { word: "hesitate", phonetic: "/ˈhezɪteɪt/", pos: "동사", meaning: "망설이다, 주저하다", wrong1: "서두르다", wrong2: "결정하다", wrong3: "거절하다", exEn: "Don't hesitate to ask for help.", exKo: "도움을 요청하는 것을 망설이지 마세요." },
-      { word: "inevitable", phonetic: "/ɪnˈevɪtəbl/", pos: "형용사", meaning: "피할 수 없는, 불가피한", wrong1: "선택적인", wrong2: "일시적인", wrong3: "유연한", exEn: "Change is inevitable in life.", exKo: "삶에서 변화는 불가피하다." },
-      { word: "justify", phonetic: "/ˈdʒʌstɪfaɪ/", pos: "동사", meaning: "정당화하다", wrong1: "비난하다", wrong2: "숨기다", wrong3: "포기하다", exEn: "How can you justify such behavior?", exKo: "그런 행동을 어떻게 정당화할 수 있나요?" },
-      { word: "keen", phonetic: "/kiːn/", pos: "형용사", meaning: "열망하는, 예리한", wrong1: "무관심한", wrong2: "둔한", wrong3: "게으른", exEn: "She is keen to learn new things.", exKo: "그녀는 새로운 것을 배우기를 열망한다." },
-      { word: "launch", phonetic: "/lɔːntʃ/", pos: "동사", meaning: "시작하다, 출시하다", wrong1: "중단하다", wrong2: "숨기다", wrong3: "파괴하다", exEn: "They will launch the new product next month.", exKo: "그들은 다음 달에 새 제품을 출시할 것이다." },
-      { word: "maintain", phonetic: "/meɪnˈteɪn/", pos: "동사", meaning: "유지하다, 주장하다", wrong1: "파괴하다", wrong2: "무시하다", wrong3: "줄이다", exEn: "It's important to maintain good health.", exKo: "건강을 유지하는 것이 중요하다." },
-      { word: "negotiate", phonetic: "/nɪˈɡoʊʃieɪt/", pos: "동사", meaning: "협상하다", wrong1: "거부하다", wrong2: "강요하다", wrong3: "포기하다", exEn: "They negotiated a peace agreement.", exKo: "그들은 평화 협정을 협상했다." },
-      { word: "obstacle", phonetic: "/ˈɑːbstəkl/", pos: "명사", meaning: "장애물", wrong1: "기회", wrong2: "도구", wrong3: "보상", exEn: "Lack of money was a major obstacle.", exKo: "돈의 부족이 주요 장애물이었다." },
-      { word: "persuade", phonetic: "/pərˈsweɪd/", pos: "동사", meaning: "설득하다", wrong1: "위협하다", wrong2: "무시하다", wrong3: "속이다", exEn: "She persuaded him to change his mind.", exKo: "그녀는 그가 마음을 바꾸도록 설득했다." },
-      { word: "reluctant", phonetic: "/rɪˈlʌktənt/", pos: "형용사", meaning: "꺼리는, 마지못한", wrong1: "열정적인", wrong2: "자발적인", wrong3: "기꺼이 하는", exEn: "He was reluctant to admit his mistake.", exKo: "그는 자신의 실수를 인정하기를 꺼렸다." },
-      { word: "significant", phonetic: "/sɪɡˈnɪfɪkənt/", pos: "형용사", meaning: "중요한, 의미 있는", wrong1: "사소한", wrong2: "불필요한", wrong3: "평범한", exEn: "This is a significant achievement.", exKo: "이것은 중요한 성과이다." },
-      { word: "thorough", phonetic: "/ˈθɜːroʊ/", pos: "형용사", meaning: "철저한, 꼼꼼한", wrong1: "대충하는", wrong2: "성급한", wrong3: "부주의한", exEn: "The police conducted a thorough investigation.", exKo: "경찰은 철저한 조사를 실시했다." },
-      { word: "urban", phonetic: "/ˈɜːrbən/", pos: "형용사", meaning: "도시의", wrong1: "시골의", wrong2: "해외의", wrong3: "지하의", exEn: "Urban areas have a higher population density.", exKo: "도시 지역은 인구 밀도가 더 높다." },
-      { word: "vulnerable", phonetic: "/ˈvʌlnərəbl/", pos: "형용사", meaning: "취약한, 상처받기 쉬운", wrong1: "강한", wrong2: "안전한", wrong3: "무적의", exEn: "Children are especially vulnerable to diseases.", exKo: "어린이는 특히 질병에 취약하다." },
-      { word: "widespread", phonetic: "/ˈwaɪdspred/", pos: "형용사", meaning: "광범위한, 널리 퍼진", wrong1: "제한된", wrong2: "좁은", wrong3: "드문", exEn: "There is widespread concern about pollution.", exKo: "오염에 대한 광범위한 우려가 있다." },
-      { word: "yield", phonetic: "/jiːld/", pos: "동사", meaning: "산출하다, 양보하다", wrong1: "저항하다", wrong2: "숨기다", wrong3: "파괴하다", exEn: "The experiment yielded interesting results.", exKo: "그 실험은 흥미로운 결과를 산출했다." },
-      { word: "ambiguous", phonetic: "/æmˈbɪɡjuəs/", pos: "형용사", meaning: "모호한, 애매한", wrong1: "명확한", wrong2: "단순한", wrong3: "정확한", exEn: "His answer was deliberately ambiguous.", exKo: "그의 대답은 의도적으로 모호했다." },
-      { word: "compile", phonetic: "/kəmˈpaɪl/", pos: "동사", meaning: "편집하다, 모으다", wrong1: "분산하다", wrong2: "삭제하다", wrong3: "숨기다", exEn: "She compiled a list of useful resources.", exKo: "그녀는 유용한 자료 목록을 편집했다." },
-      { word: "demonstrate", phonetic: "/ˈdemənstreɪt/", pos: "동사", meaning: "보여주다, 시위하다", wrong1: "숨기다", wrong2: "부정하다", wrong3: "무시하다", exEn: "He demonstrated how the machine works.", exKo: "그는 기계가 어떻게 작동하는지 보여주었다." },
-      { word: "elaborate", phonetic: "/ɪˈlæbərət/", pos: "형용사", meaning: "정교한, 상세한", wrong1: "간단한", wrong2: "거친", wrong3: "대충의", exEn: "She wore an elaborate costume to the party.", exKo: "그녀는 파티에 정교한 의상을 입었다." },
-      { word: "feasible", phonetic: "/ˈfiːzəbl/", pos: "형용사", meaning: "실현 가능한", wrong1: "불가능한", wrong2: "비현실적인", wrong3: "위험한", exEn: "Is this plan financially feasible?", exKo: "이 계획은 재정적으로 실현 가능한가?" },
-      { word: "grasp", phonetic: "/ɡræsp/", pos: "동사", meaning: "이해하다, 움켜쥐다", wrong1: "놓치다", wrong2: "잊다", wrong3: "거부하다", exEn: "He quickly grasped the concept.", exKo: "그는 그 개념을 빠르게 이해했다." },
-      { word: "hypothesis", phonetic: "/haɪˈpɑːθəsɪs/", pos: "명사", meaning: "가설", wrong1: "결론", wrong2: "사실", wrong3: "증거", exEn: "We need to test this hypothesis.", exKo: "우리는 이 가설을 검증해야 한다." },
-      { word: "implement", phonetic: "/ˈɪmplɪment/", pos: "동사", meaning: "시행하다, 실행하다", wrong1: "취소하다", wrong2: "지연하다", wrong3: "무시하다", exEn: "The government will implement new policies.", exKo: "정부는 새로운 정책을 시행할 것이다." },
-      { word: "allocate", phonetic: "/ˈæləkeɪt/", pos: "동사", meaning: "할당하다, 배분하다", wrong1: "회수하다", wrong2: "낭비하다", wrong3: "숨기다", exEn: "We need to allocate more resources.", exKo: "우리는 더 많은 자원을 할당해야 한다." },
-      { word: "brief", phonetic: "/briːf/", pos: "형용사", meaning: "간단한, 짧은", wrong1: "긴", wrong2: "복잡한", wrong3: "지루한", exEn: "He gave a brief summary of the report.", exKo: "그는 보고서의 간단한 요약을 했다." },
-      { word: "cease", phonetic: "/siːs/", pos: "동사", meaning: "중단하다, 그만두다", wrong1: "시작하다", wrong2: "계속하다", wrong3: "증가하다", exEn: "The factory ceased production last year.", exKo: "그 공장은 작년에 생산을 중단했다." },
-      { word: "derive", phonetic: "/dɪˈraɪv/", pos: "동사", meaning: "얻다, 유래하다", wrong1: "잃다", wrong2: "버리다", wrong3: "숨기다", exEn: "Many English words derive from Latin.", exKo: "많은 영어 단어가 라틴어에서 유래한다." },
-      { word: "emerge", phonetic: "/ɪˈmɜːrdʒ/", pos: "동사", meaning: "나타나다, 드러나다", wrong1: "사라지다", wrong2: "숨다", wrong3: "가라앉다", exEn: "New evidence emerged during the trial.", exKo: "재판 중에 새로운 증거가 드러났다." },
-      { word: "fluctuate", phonetic: "/ˈflʌktʃueɪt/", pos: "동사", meaning: "변동하다, 오르내리다", wrong1: "고정되다", wrong2: "안정되다", wrong3: "멈추다", exEn: "Oil prices fluctuate constantly.", exKo: "유가는 끊임없이 변동한다." },
-      { word: "inherent", phonetic: "/ɪnˈhɪrənt/", pos: "형용사", meaning: "본래의, 고유한", wrong1: "외부의", wrong2: "임시의", wrong3: "인위적인", exEn: "There are inherent risks in every business.", exKo: "모든 사업에는 본래의 위험이 있다." },
-      { word: "legitimate", phonetic: "/lɪˈdʒɪtɪmət/", pos: "형용사", meaning: "합법적인, 정당한", wrong1: "불법적인", wrong2: "의심스러운", wrong3: "거짓된", exEn: "He has a legitimate reason to be concerned.", exKo: "그가 걱정할 정당한 이유가 있다." },
-      { word: "noticeable", phonetic: "/ˈnoʊtɪsəbl/", pos: "형용사", meaning: "눈에 띄는, 현저한", wrong1: "미미한", wrong2: "보이지 않는", wrong3: "평범한", exEn: "There has been a noticeable improvement.", exKo: "눈에 띄는 개선이 있었다." },
-      { word: "perceive", phonetic: "/pərˈsiːv/", pos: "동사", meaning: "인식하다, 감지하다", wrong1: "무시하다", wrong2: "잊다", wrong3: "거부하다", exEn: "She perceived a change in his attitude.", exKo: "그녀는 그의 태도 변화를 감지했다." },
-      { word: "revise", phonetic: "/rɪˈvaɪz/", pos: "동사", meaning: "수정하다, 복습하다", wrong1: "그대로 두다", wrong2: "삭제하다", wrong3: "복사하다", exEn: "I need to revise my essay before submitting.", exKo: "제출하기 전에 에세이를 수정해야 한다." },
-      { word: "sustain", phonetic: "/səˈsteɪn/", pos: "동사", meaning: "유지하다, 지탱하다", wrong1: "파괴하다", wrong2: "줄이다", wrong3: "포기하다", exEn: "We must sustain economic growth.", exKo: "우리는 경제 성장을 유지해야 한다." },
-      { word: "undergo", phonetic: "/ˌʌndərˈɡoʊ/", pos: "동사", meaning: "겪다, 받다", wrong1: "피하다", wrong2: "거부하다", wrong3: "무시하다", exEn: "He will undergo surgery next week.", exKo: "그는 다음 주에 수술을 받을 것이다." },
-      { word: "valid", phonetic: "/ˈvælɪd/", pos: "형용사", meaning: "유효한, 타당한", wrong1: "무효한", wrong2: "불합리한", wrong3: "거짓된", exEn: "Your ticket is valid for one month.", exKo: "당신의 티켓은 한 달간 유효합니다." },
-      { word: "accumulate", phonetic: "/əˈkjuːmjəleɪt/", pos: "동사", meaning: "축적하다, 모으다", wrong1: "소비하다", wrong2: "분산하다", wrong3: "버리다", exEn: "Dust tends to accumulate on shelves.", exKo: "먼지는 선반 위에 쌓이는 경향이 있다." },
-      { word: "compatible", phonetic: "/kəmˈpætəbl/", pos: "형용사", meaning: "호환되는, 양립하는", wrong1: "충돌하는", wrong2: "불일치하는", wrong3: "반대의", exEn: "Is this software compatible with Mac?", exKo: "이 소프트웨어는 맥과 호환되나요?" },
-      { word: "deprive", phonetic: "/dɪˈpraɪv/", pos: "동사", meaning: "빼앗다, 박탈하다", wrong1: "제공하다", wrong2: "허락하다", wrong3: "보상하다", exEn: "You cannot deprive people of their rights.", exKo: "사람들의 권리를 박탈할 수 없다." },
-      { word: "enhance", phonetic: "/ɪnˈhæns/", pos: "동사", meaning: "향상시키다, 높이다", wrong1: "저하시키다", wrong2: "무시하다", wrong3: "숨기다", exEn: "This tool will enhance your productivity.", exKo: "이 도구는 당신의 생산성을 향상시킬 것이다." },
-      { word: "aggregate", phonetic: "/ˈæɡrɪɡeɪt/", pos: "동사", meaning: "합산하다, 모으다", wrong1: "분리하다", wrong2: "줄이다", wrong3: "삭제하다", exEn: "We need to aggregate the data from all sources.", exKo: "모든 출처의 데이터를 합산해야 한다." },
-      { word: "contemplate", phonetic: "/ˈkɑːntəmpleɪt/", pos: "동사", meaning: "숙고하다, 심사숙고하다", wrong1: "무시하다", wrong2: "서두르다", wrong3: "거부하다", exEn: "She contemplated the meaning of life.", exKo: "그녀는 삶의 의미를 숙고했다." },
-      { word: "diminish", phonetic: "/dɪˈmɪnɪʃ/", pos: "동사", meaning: "줄이다, 감소시키다", wrong1: "증가시키다", wrong2: "유지하다", wrong3: "강화하다", exEn: "Nothing can diminish her achievements.", exKo: "어떤 것도 그녀의 업적을 줄일 수 없다." },
-      { word: "explicit", phonetic: "/ɪkˈsplɪsɪt/", pos: "형용사", meaning: "명시적인, 분명한", wrong1: "암시적인", wrong2: "모호한", wrong3: "숨겨진", exEn: "The instructions were explicit and clear.", exKo: "지시사항은 명시적이고 분명했다." },
-      { word: "integrity", phonetic: "/ɪnˈteɡrəti/", pos: "명사", meaning: "진실성, 무결성", wrong1: "거짓", wrong2: "부정", wrong3: "약점", exEn: "She is a woman of great integrity.", exKo: "그녀는 진실성이 뛰어난 여성이다." },
-      { word: "overwhelming", phonetic: "/ˌoʊvərˈwelmɪŋ/", pos: "형용사", meaning: "압도적인", wrong1: "미미한", wrong2: "평범한", wrong3: "약한", exEn: "The response was overwhelming.", exKo: "반응은 압도적이었다." },
-      { word: "precise", phonetic: "/prɪˈsaɪs/", pos: "형용사", meaning: "정확한, 정밀한", wrong1: "대략적인", wrong2: "불명확한", wrong3: "부정확한", exEn: "Please give me the precise time.", exKo: "정확한 시간을 알려주세요." },
-      { word: "rigid", phonetic: "/ˈrɪdʒɪd/", pos: "형용사", meaning: "엄격한, 딱딱한", wrong1: "유연한", wrong2: "부드러운", wrong3: "느슨한", exEn: "The school has rigid rules.", exKo: "그 학교는 엄격한 규칙이 있다." },
-      { word: "coherent", phonetic: "/koʊˈhɪrənt/", pos: "형용사", meaning: "논리적인, 일관된", wrong1: "혼란스러운", wrong2: "모순된", wrong3: "단편적인", exEn: "She presented a coherent argument.", exKo: "그녀는 논리적인 주장을 펼쳤다." },
-      { word: "disrupt", phonetic: "/dɪsˈrʌpt/", pos: "동사", meaning: "방해하다, 혼란시키다", wrong1: "지원하다", wrong2: "정리하다", wrong3: "안정시키다", exEn: "The storm disrupted travel plans.", exKo: "폭풍이 여행 계획을 방해했다." },
-      { word: "substantial", phonetic: "/səbˈstænʃəl/", pos: "형용사", meaning: "상당한, 실질적인", wrong1: "미미한", wrong2: "가상의", wrong3: "일시적인", exEn: "There has been a substantial increase in sales.", exKo: "매출에 상당한 증가가 있었다." },
-      { word: "comply", phonetic: "/kəmˈplaɪ/", pos: "동사", meaning: "따르다, 준수하다", wrong1: "거부하다", wrong2: "어기다", wrong3: "무시하다", exEn: "All employees must comply with safety rules.", exKo: "모든 직원은 안전 규칙을 준수해야 한다." },
-      { word: "abstract", phonetic: "/ˈæbstrækt/", pos: "형용사", meaning: "추상적인", wrong1: "구체적인", wrong2: "실용적인", wrong3: "단순한", exEn: "Love is an abstract concept.", exKo: "사랑은 추상적인 개념이다." },
-      { word: "anticipate", phonetic: "/ænˈtɪsɪpeɪt/", pos: "동사", meaning: "예상하다, 기대하다", wrong1: "무시하다", wrong2: "회피하다", wrong3: "잊다", exEn: "We anticipate a busy holiday season.", exKo: "우리는 바쁜 휴가 시즌을 예상한다." },
-      { word: "comprehensive", phonetic: "/ˌkɑːmprɪˈhensɪv/", pos: "형용사", meaning: "포괄적인, 종합적인", wrong1: "부분적인", wrong2: "제한적인", wrong3: "단편적인", exEn: "We offer comprehensive insurance plans.", exKo: "우리는 포괄적인 보험 플랜을 제공합니다." },
-      { word: "deficit", phonetic: "/ˈdefɪsɪt/", pos: "명사", meaning: "적자, 부족", wrong1: "흑자", wrong2: "이익", wrong3: "잔고", exEn: "The country faces a huge budget deficit.", exKo: "그 나라는 막대한 예산 적자에 직면해 있다." },
-      { word: "erode", phonetic: "/ɪˈroʊd/", pos: "동사", meaning: "침식하다, 약화시키다", wrong1: "강화하다", wrong2: "보호하다", wrong3: "회복하다", exEn: "Wind and rain erode the coastline.", exKo: "바람과 비가 해안선을 침식한다." },
-      { word: "fragment", phonetic: "/ˈfræɡmənt/", pos: "명사", meaning: "조각, 파편", wrong1: "전체", wrong2: "덩어리", wrong3: "완성품", exEn: "Fragments of glass were everywhere.", exKo: "유리 조각이 사방에 있었다." },
-      { word: "impose", phonetic: "/ɪmˈpoʊz/", pos: "동사", meaning: "부과하다, 강요하다", wrong1: "제거하다", wrong2: "면제하다", wrong3: "허용하다", exEn: "The government imposed new taxes.", exKo: "정부는 새로운 세금을 부과했다." },
-      { word: "mere", phonetic: "/mɪr/", pos: "형용사", meaning: "단지, 겨우 ~에 불과한", wrong1: "상당한", wrong2: "큰", wrong3: "주요한", exEn: "He is a mere child.", exKo: "그는 겨우 어린아이에 불과하다." },
-      { word: "notion", phonetic: "/ˈnoʊʃən/", pos: "명사", meaning: "개념, 생각", wrong1: "사실", wrong2: "증거", wrong3: "결론", exEn: "I reject the notion that money buys happiness.", exKo: "돈이 행복을 산다는 개념을 거부한다." },
-      { word: "profound", phonetic: "/prəˈfaʊnd/", pos: "형용사", meaning: "심오한, 깊은", wrong1: "피상적인", wrong2: "단순한", wrong3: "얕은", exEn: "The book had a profound impact on me.", exKo: "그 책은 나에게 심오한 영향을 미쳤다." },
-      { word: "restrain", phonetic: "/rɪˈstreɪn/", pos: "동사", meaning: "억제하다, 제지하다", wrong1: "풀어주다", wrong2: "격려하다", wrong3: "자극하다", exEn: "She had to restrain her anger.", exKo: "그녀는 분노를 억제해야 했다." },
-      { word: "stimulus", phonetic: "/ˈstɪmjələs/", pos: "명사", meaning: "자극, 촉진제", wrong1: "억제제", wrong2: "장애물", wrong3: "방해물", exEn: "The tax cut served as an economic stimulus.", exKo: "감세는 경제적 자극제 역할을 했다." },
-      { word: "tentative", phonetic: "/ˈtentətɪv/", pos: "형용사", meaning: "잠정적인, 시험적인", wrong1: "확정적인", wrong2: "영구적인", wrong3: "확실한", exEn: "We made a tentative plan for the weekend.", exKo: "우리는 주말에 대한 잠정적인 계획을 세웠다." },
-      { word: "utilize", phonetic: "/ˈjuːtəlaɪz/", pos: "동사", meaning: "활용하다, 이용하다", wrong1: "낭비하다", wrong2: "무시하다", wrong3: "버리다", exEn: "We should utilize all available resources.", exKo: "우리는 모든 가용 자원을 활용해야 한다." },
-      { word: "adverse", phonetic: "/ædˈvɜːrs/", pos: "형용사", meaning: "불리한, 부정적인", wrong1: "유리한", wrong2: "긍정적인", wrong3: "유익한", exEn: "The drug may have adverse side effects.", exKo: "그 약은 부정적인 부작용이 있을 수 있다." },
-      { word: "bulk", phonetic: "/bʌlk/", pos: "명사", meaning: "대부분, 대량", wrong1: "소량", wrong2: "일부", wrong3: "조각", exEn: "The bulk of the work is done.", exKo: "작업의 대부분이 끝났다." },
-      { word: "concurrent", phonetic: "/kənˈkɜːrənt/", pos: "형용사", meaning: "동시의, 동시에 일어나는", wrong1: "순차적인", wrong2: "별개의", wrong3: "이전의", exEn: "The two events were concurrent.", exKo: "두 사건은 동시에 일어났다." },
-      { word: "devote", phonetic: "/dɪˈvoʊt/", pos: "동사", meaning: "헌신하다, 바치다", wrong1: "무시하다", wrong2: "포기하다", wrong3: "낭비하다", exEn: "She devoted her life to helping others.", exKo: "그녀는 남을 돕는 데 일생을 바쳤다." },
-      { word: "empirical", phonetic: "/ɪmˈpɪrɪkəl/", pos: "형용사", meaning: "경험적인, 실증적인", wrong1: "이론적인", wrong2: "추측의", wrong3: "주관적인", exEn: "We need empirical evidence to support this claim.", exKo: "이 주장을 뒷받침할 실증적 증거가 필요하다." },
-      { word: "forthcoming", phonetic: "/ˌfɔːrθˈkʌmɪŋ/", pos: "형용사", meaning: "다가오는, 곧 있을", wrong1: "지나간", wrong2: "취소된", wrong3: "먼 미래의", exEn: "Details will be in the forthcoming report.", exKo: "세부사항은 곧 나올 보고서에 있을 것이다." },
-      { word: "hierarchy", phonetic: "/ˈhaɪərɑːrki/", pos: "명사", meaning: "계층, 서열", wrong1: "평등", wrong2: "혼란", wrong3: "단일체", exEn: "There is a strict hierarchy in the company.", exKo: "그 회사에는 엄격한 계층이 있다." },
-      { word: "incentive", phonetic: "/ɪnˈsentɪv/", pos: "명사", meaning: "동기, 장려책", wrong1: "벌칙", wrong2: "장애물", wrong3: "제한", exEn: "Tax breaks provide an incentive to invest.", exKo: "세금 감면은 투자에 대한 동기를 제공한다." },
-      { word: "offset", phonetic: "/ˈɔːfset/", pos: "동사", meaning: "상쇄하다, 벌충하다", wrong1: "증가시키다", wrong2: "악화시키다", wrong3: "무시하다", exEn: "Gains in one area offset losses in another.", exKo: "한 분야의 이익이 다른 분야의 손실을 상쇄했다." },
-      { word: "preliminary", phonetic: "/prɪˈlɪmɪneri/", pos: "형용사", meaning: "예비의, 사전의", wrong1: "최종의", wrong2: "확정의", wrong3: "공식의", exEn: "These are just preliminary results.", exKo: "이것들은 단지 예비 결과일 뿐이다." },
-      { word: "reinforce", phonetic: "/ˌriːɪnˈfɔːrs/", pos: "동사", meaning: "강화하다, 보강하다", wrong1: "약화시키다", wrong2: "해체하다", wrong3: "무시하다", exEn: "We need to reinforce the bridge.", exKo: "우리는 다리를 보강해야 한다." },
-      { word: "scope", phonetic: "/skoʊp/", pos: "명사", meaning: "범위, 영역", wrong1: "한계", wrong2: "제한", wrong3: "부족", exEn: "This is beyond the scope of our study.", exKo: "이것은 우리 연구의 범위를 넘어선다." },
-      { word: "trigger", phonetic: "/ˈtrɪɡər/", pos: "동사", meaning: "촉발시키다, 유발하다", wrong1: "막다", wrong2: "억제하다", wrong3: "예방하다", exEn: "The incident triggered a public debate.", exKo: "그 사건은 공개 토론을 촉발시켰다." },
-      { word: "unify", phonetic: "/ˈjuːnɪfaɪ/", pos: "동사", meaning: "통일하다, 통합하다", wrong1: "분열시키다", wrong2: "해체하다", wrong3: "분리하다", exEn: "The leader tried to unify the nation.", exKo: "그 지도자는 국가를 통일하려 했다." },
-      { word: "verify", phonetic: "/ˈverɪfaɪ/", pos: "동사", meaning: "확인하다, 검증하다", wrong1: "무시하다", wrong2: "추측하다", wrong3: "부정하다", exEn: "Please verify your email address.", exKo: "이메일 주소를 확인해 주세요." },
-      { word: "ambition", phonetic: "/æmˈbɪʃən/", pos: "명사", meaning: "야망, 포부", wrong1: "무관심", wrong2: "겸손", wrong3: "체념", exEn: "Her ambition is to become a doctor.", exKo: "그녀의 야망은 의사가 되는 것이다." },
-      { word: "consensus", phonetic: "/kənˈsensəs/", pos: "명사", meaning: "합의, 의견 일치", wrong1: "불일치", wrong2: "논쟁", wrong3: "반대", exEn: "They reached a consensus on the issue.", exKo: "그들은 그 문제에 대해 합의에 도달했다." },
-      { word: "distinct", phonetic: "/dɪˈstɪŋkt/", pos: "형용사", meaning: "뚜렷한, 별개의", wrong1: "모호한", wrong2: "유사한", wrong3: "혼합된", exEn: "There are two distinct groups.", exKo: "두 개의 뚜렷한 그룹이 있다." },
-      { word: "interval", phonetic: "/ˈɪntərvəl/", pos: "명사", meaning: "간격, 사이", wrong1: "연속", wrong2: "전체", wrong3: "끝", exEn: "Trains run at regular intervals.", exKo: "기차는 규칙적인 간격으로 운행한다." },
-      { word: "persist", phonetic: "/pərˈsɪst/", pos: "동사", meaning: "지속하다, 고집하다", wrong1: "포기하다", wrong2: "그만두다", wrong3: "멈추다", exEn: "If symptoms persist, see a doctor.", exKo: "증상이 지속되면 의사를 만나세요." },
-      { word: "relevant", phonetic: "/ˈreləvənt/", pos: "형용사", meaning: "관련 있는, 적절한", wrong1: "무관한", wrong2: "불필요한", wrong3: "쓸모없는", exEn: "Please provide relevant information.", exKo: "관련 있는 정보를 제공해 주세요." },
-      { word: "specify", phonetic: "/ˈspesɪfaɪ/", pos: "동사", meaning: "명시하다, 지정하다", wrong1: "모호하게 하다", wrong2: "생략하다", wrong3: "숨기다", exEn: "Please specify your requirements.", exKo: "요구사항을 명시해 주세요." },
-    ];
+  <!-- ===== 달력 ===== -->
+  <div class="screen" id="calendarScreen">
+    <div class="card">
+      <div class="cal-header">
+        <button class="cal-nav" onclick="calMove(-1)">&lt;</button>
+        <h2 id="calTitle"></h2>
+        <button class="cal-nav" onclick="calMove(1)">&gt;</button>
+      </div>
+      <div class="cal-weekdays">
+        <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
+      </div>
+      <div class="cal-days" id="calDays"></div>
+      <div class="legend">
+        <span><span class="dot vocab"></span> 단어</span>
+        <span><span class="dot read"></span> 독해</span>
+      </div>
+    </div>
+    <div class="card cal-detail" id="calDetail">
+      <div class="detail-date" id="calDetailDate"></div>
+      <div class="detail-scores">
+        <div class="detail-score">
+          <div class="ds-label">단어 퀴즈</div>
+          <div class="ds-value v-color" id="calVocabScore">-</div>
+        </div>
+        <div class="detail-score">
+          <div class="ds-label">독해</div>
+          <div class="ds-value r-color" id="calReadScore">-</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    // ==================== 퀴즈 로직 ====================
-    const QUIZ_COUNT = 10;
-    let currentQuiz = [];
-    let currentIndex = 0;
-    let score = 0;
-    let wrongAnswers = [];
+</div>
 
-    function getTodayKey() {
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    }
+<script src="words.js"></script>
+<script src="readings.js"></script>
+<script>
+  // ==================== 유틸리티 ====================
+  const VOCAB_COUNT = 10;
+  const READ_COUNT = 3;
 
-    function getStreak() {
-      return parseInt(localStorage.getItem('streak') || '0');
-    }
+  function getTodayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  }
 
-    function updateStreak() {
-      const today = getTodayKey();
-      const lastDate = localStorage.getItem('lastQuizDate');
+  function getRecord(dateKey) {
+    const data = localStorage.getItem('record_' + dateKey);
+    return data ? JSON.parse(data) : null;
+  }
 
-      if (lastDate === today) return;
+  function saveRecord(dateKey, type, score, total) {
+    let rec = getRecord(dateKey) || {};
+    rec[type] = { score, total };
+    localStorage.setItem('record_' + dateKey, JSON.stringify(rec));
+  }
 
-      if (lastDate) {
-        const last = new Date(lastDate);
-        const now = new Date(today);
-        const diffDays = Math.floor((now - last) / (1000 * 60 * 60 * 24));
-        if (diffDays === 1) {
-          localStorage.setItem('streak', getStreak() + 1);
-        } else if (diffDays > 1) {
-          localStorage.setItem('streak', '1');
-        }
+  function getStreak() {
+    let streak = 0;
+    const today = new Date();
+    for (let i = 0; i < 365; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      const rec = getRecord(key);
+      if (rec && (rec.vocab || rec.reading)) {
+        streak++;
+      } else if (i > 0) {
+        break;
       } else {
-        localStorage.setItem('streak', '1');
-      }
-      localStorage.setItem('lastQuizDate', today);
-    }
-
-    function selectTodayWords() {
-      // Use date as seed for consistent daily quiz
-      const today = getTodayKey();
-      let seed = 0;
-      for (let i = 0; i < today.length; i++) {
-        seed = ((seed << 5) - seed) + today.charCodeAt(i);
-        seed |= 0;
-      }
-
-      // Shuffle with seed
-      const indices = WORDS.map((_, i) => i);
-      for (let i = indices.length - 1; i > 0; i--) {
-        seed = (seed * 16807 + 0) % 2147483647;
-        const j = Math.abs(seed) % (i + 1);
-        [indices[i], indices[j]] = [indices[j], indices[i]];
-      }
-
-      return indices.slice(0, QUIZ_COUNT).map(i => WORDS[i]);
-    }
-
-    function shuffle(arr) {
-      const a = [...arr];
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    }
-
-    function startQuiz() {
-      const today = getTodayKey();
-      if (localStorage.getItem('completedDate') === today) {
-        document.getElementById('startScreen').style.display = 'none';
-        document.getElementById('completedMsg').style.display = 'block';
-        return;
-      }
-
-      currentQuiz = selectTodayWords();
-      currentIndex = 0;
-      score = 0;
-      wrongAnswers = [];
-
-      document.getElementById('startScreen').style.display = 'none';
-      document.getElementById('quizScreen').style.display = 'flex';
-
-      const d = new Date();
-      document.getElementById('todayDate').textContent =
-        `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
-
-      document.getElementById('streakDisplay').textContent = getStreak();
-
-      showQuestion();
-    }
-
-    function showQuestion() {
-      const q = currentQuiz[currentIndex];
-
-      document.getElementById('quizNumber').textContent =
-        `${currentIndex + 1} / ${QUIZ_COUNT}`;
-      document.getElementById('quizWord').textContent = q.word;
-      document.getElementById('quizPhonetic').textContent = q.phonetic;
-      document.getElementById('quizPos').textContent = q.pos;
-      document.getElementById('progressFill').style.width =
-        `${(currentIndex / QUIZ_COUNT) * 100}%`;
-      document.getElementById('scoreDisplay').textContent = score;
-
-      const options = shuffle([q.meaning, q.wrong1, q.wrong2, q.wrong3]);
-
-      const optContainer = document.getElementById('quizOptions');
-      optContainer.innerHTML = '';
-
-      options.forEach(opt => {
-        const btn = document.createElement('button');
-        btn.className = 'option-btn';
-        btn.textContent = opt;
-        btn.onclick = () => selectAnswer(btn, opt, q);
-        optContainer.appendChild(btn);
-      });
-
-      document.getElementById('exampleSentence').style.display = 'none';
-      document.getElementById('nextBtn').style.display = 'none';
-    }
-
-    function selectAnswer(btn, selected, q) {
-      const buttons = document.querySelectorAll('.option-btn');
-      buttons.forEach(b => b.disabled = true);
-
-      const isCorrect = selected === q.meaning;
-
-      if (isCorrect) {
-        btn.classList.add('correct');
-        score++;
-        document.getElementById('scoreDisplay').textContent = score;
-      } else {
-        btn.classList.add('wrong');
-        wrongAnswers.push(q);
-        buttons.forEach(b => {
-          if (b.textContent === q.meaning) b.classList.add('reveal');
-        });
-      }
-
-      // Show example
-      document.getElementById('exampleEn').textContent = `"${q.exEn}"`;
-      document.getElementById('exampleKo').textContent = q.exKo;
-      document.getElementById('exampleSentence').style.display = 'block';
-      document.getElementById('nextBtn').style.display = 'block';
-      document.getElementById('nextBtn').textContent =
-        currentIndex < QUIZ_COUNT - 1 ? '다음 문제' : '결과 보기';
-    }
-
-    function nextQuestion() {
-      currentIndex++;
-      if (currentIndex < QUIZ_COUNT) {
-        showQuestion();
-      } else {
-        showResult();
+        break;
       }
     }
+    return streak;
+  }
 
-    function showResult() {
-      document.getElementById('quizScreen').style.display = 'none';
-      document.getElementById('resultScreen').style.display = 'block';
-
-      updateStreak();
-      localStorage.setItem('completedDate', getTodayKey());
-
-      const pct = Math.round((score / QUIZ_COUNT) * 100);
-      let emoji, title;
-
-      if (pct === 100) { emoji = '🏆'; title = '완벽해요!'; }
-      else if (pct >= 80) { emoji = '🎉'; title = '훌륭해요!'; }
-      else if (pct >= 60) { emoji = '👍'; title = '잘했어요!'; }
-      else if (pct >= 40) { emoji = '💪'; title = '조금 더 노력!'; }
-      else { emoji = '📖'; title = '복습이 필요해요'; }
-
-      document.getElementById('resultEmoji').textContent = emoji;
-      document.getElementById('resultTitle').textContent = title;
-      document.getElementById('resultScore').innerHTML =
-        `${QUIZ_COUNT}문제 중 <span>${score}개</span> 정답 (${pct}%)`;
-
-      if (wrongAnswers.length > 0) {
-        document.getElementById('wrongList').style.display = 'block';
-        const container = document.getElementById('wrongItems');
-        container.innerHTML = '';
-        wrongAnswers.forEach(w => {
-          const div = document.createElement('div');
-          div.className = 'wrong-item';
-          div.innerHTML = `
-            <div class="w-word">${w.word} <span style="color:#64748b">${w.phonetic}</span></div>
-            <div class="w-meaning">${w.meaning}</div>
-          `;
-          container.appendChild(div);
-        });
+  function getTotalStats() {
+    let words = 0, readings = 0;
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k.startsWith('record_')) {
+        const rec = JSON.parse(localStorage.getItem(k));
+        if (rec.vocab) words += rec.vocab.total;
+        if (rec.reading) readings += rec.reading.total;
       }
     }
+    return { words, readings };
+  }
 
-    // Check if already completed today
-    window.addEventListener('load', () => {
-      const today = getTodayKey();
-      if (localStorage.getItem('completedDate') === today) {
-        document.getElementById('startScreen').style.display = 'none';
-        document.getElementById('completedMsg').style.display = 'block';
-      }
+  function seededShuffle(arr, seed) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      seed = (seed * 16807 + 0) % 2147483647;
+      const j = Math.abs(seed) % (i + 1);
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function dateSeed(dateStr) {
+    let s = 0;
+    for (let i = 0; i < dateStr.length; i++) {
+      s = ((s << 5) - s) + dateStr.charCodeAt(i);
+      s |= 0;
+    }
+    return Math.abs(s);
+  }
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // ==================== 탭 & 네비게이션 ====================
+  function showTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      b.classList.toggle('active', (tab === 'home' && i === 0) || (tab === 'calendar' && i === 1));
     });
-  </script>
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    if (tab === 'home') {
+      document.getElementById('homeScreen').classList.add('active');
+      refreshHome();
+    } else {
+      document.getElementById('calendarScreen').classList.add('active');
+      renderCalendar();
+    }
+  }
+
+  function goHome() {
+    showTab('home');
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // ==================== 홈 화면 ====================
+  function refreshHome() {
+    const d = new Date();
+    document.getElementById('homeDate').textContent =
+      `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
+
+    document.getElementById('homeStreak').textContent = getStreak();
+    const stats = getTotalStats();
+    document.getElementById('homeTotalWords').textContent = stats.words;
+    document.getElementById('homeTotalReadings').textContent = stats.readings;
+
+    const today = getTodayKey();
+    const rec = getRecord(today);
+
+    const vBtn = document.getElementById('vocabMenuBtn');
+    const vBadge = document.getElementById('vocabBadge');
+    if (rec && rec.vocab) {
+      vBtn.classList.add('done');
+      vBadge.textContent = `${rec.vocab.score}/${rec.vocab.total}`;
+      vBadge.style.background = '#64748b';
+    } else {
+      vBtn.classList.remove('done');
+      vBadge.textContent = '도전';
+      vBadge.style.background = '#22c55e';
+    }
+
+    const rBtn = document.getElementById('readMenuBtn');
+    const rBadge = document.getElementById('readBadge');
+    if (rec && rec.reading) {
+      rBtn.classList.add('done');
+      rBadge.textContent = `${rec.reading.score}/${rec.reading.total}`;
+      rBadge.style.background = '#64748b';
+    } else {
+      rBtn.classList.remove('done');
+      rBadge.textContent = '도전';
+      rBadge.style.background = '#22c55e';
+    }
+  }
+
+  // ==================== 단어 퀴즈 ====================
+  let vocabQuiz = [], vocabIdx = 0, vocabScoreVal = 0, vocabWrong = [];
+
+  function startVocabQuiz() {
+    const today = getTodayKey();
+    const rec = getRecord(today);
+    if (rec && rec.vocab) {
+      alert('오늘의 단어 퀴즈를 이미 완료했어요!');
+      return;
+    }
+
+    const seed = dateSeed(today);
+    const indices = seededShuffle(WORDS.map((_, i) => i), seed);
+    vocabQuiz = indices.slice(0, VOCAB_COUNT).map(i => WORDS[i]);
+    vocabIdx = 0;
+    vocabScoreVal = 0;
+    vocabWrong = [];
+
+    showScreen('vocabScreen');
+    showVocabQuestion();
+  }
+
+  function showVocabQuestion() {
+    const q = vocabQuiz[vocabIdx];
+    document.getElementById('vocabNum').textContent = `${vocabIdx + 1} / ${VOCAB_COUNT}`;
+    document.getElementById('vocabScore').textContent = vocabScoreVal;
+    document.getElementById('vocabProgress').style.width = `${(vocabIdx / VOCAB_COUNT) * 100}%`;
+    document.getElementById('vWord').textContent = q.word;
+    document.getElementById('vPhonetic').textContent = q.phonetic;
+    document.getElementById('vPos').textContent = q.pos;
+
+    const opts = shuffle([q.meaning, q.wrong1, q.wrong2, q.wrong3]);
+    const container = document.getElementById('vOptions');
+    container.innerHTML = '';
+    opts.forEach(o => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = o;
+      btn.onclick = () => vocabAnswer(btn, o, q);
+      container.appendChild(btn);
+    });
+
+    document.getElementById('vExample').style.display = 'none';
+    document.getElementById('vNextBtn').style.display = 'none';
+  }
+
+  function vocabAnswer(btn, selected, q) {
+    const buttons = document.querySelectorAll('#vOptions .opt-btn');
+    buttons.forEach(b => b.disabled = true);
+
+    if (selected === q.meaning) {
+      btn.classList.add('correct');
+      vocabScoreVal++;
+      document.getElementById('vocabScore').textContent = vocabScoreVal;
+    } else {
+      btn.classList.add('wrong');
+      vocabWrong.push(q);
+      buttons.forEach(b => { if (b.textContent === q.meaning) b.classList.add('reveal'); });
+    }
+
+    document.getElementById('vExEn').textContent = `"${q.exEn}"`;
+    document.getElementById('vExKo').textContent = q.exKo;
+    document.getElementById('vExample').style.display = 'block';
+    const nb = document.getElementById('vNextBtn');
+    nb.style.display = 'block';
+    nb.textContent = vocabIdx < VOCAB_COUNT - 1 ? '다음 문제' : '결과 보기';
+  }
+
+  function vocabNext() {
+    vocabIdx++;
+    if (vocabIdx < VOCAB_COUNT) {
+      showVocabQuestion();
+    } else {
+      saveRecord(getTodayKey(), 'vocab', vocabScoreVal, VOCAB_COUNT);
+      showVocabResult();
+    }
+  }
+
+  function showVocabResult() {
+    showScreen('vocabResultScreen');
+    const pct = Math.round((vocabScoreVal / VOCAB_COUNT) * 100);
+    let emoji, title;
+    if (pct === 100) { emoji = '🏆'; title = '완벽해요!'; }
+    else if (pct >= 80) { emoji = '🎉'; title = '훌륭해요!'; }
+    else if (pct >= 60) { emoji = '👍'; title = '잘했어요!'; }
+    else if (pct >= 40) { emoji = '💪'; title = '조금 더 노력!'; }
+    else { emoji = '📖'; title = '복습이 필요해요'; }
+
+    document.getElementById('vrEmoji').textContent = emoji;
+    document.getElementById('vrTitle').textContent = title;
+    document.getElementById('vrScore').innerHTML = `${VOCAB_COUNT}문제 중 <span>${vocabScoreVal}개</span> 정답 (${pct}%)`;
+
+    const wl = document.getElementById('vrWrongList');
+    if (vocabWrong.length > 0) {
+      wl.style.display = 'block';
+      const container = document.getElementById('vrWrongItems');
+      container.innerHTML = '';
+      vocabWrong.forEach(w => {
+        const div = document.createElement('div');
+        div.className = 'wrong-item';
+        div.innerHTML = `<div class="wi-word">${w.word} <span style="color:#64748b">${w.phonetic}</span></div><div class="wi-meaning">${w.meaning}</div>`;
+        container.appendChild(div);
+      });
+    } else {
+      wl.style.display = 'none';
+    }
+  }
+
+  // ==================== 독해 ====================
+  let readQuiz = [], readIdx = 0, readScoreVal = 0;
+
+  function startReading() {
+    const today = getTodayKey();
+    const rec = getRecord(today);
+    if (rec && rec.reading) {
+      alert('오늘의 독해 문제를 이미 완료했어요!');
+      return;
+    }
+
+    const seed = dateSeed(today + 'read');
+    const indices = seededShuffle(READINGS.map((_, i) => i), seed);
+    readQuiz = indices.slice(0, READ_COUNT).map(i => READINGS[i]);
+    readIdx = 0;
+    readScoreVal = 0;
+
+    showScreen('readScreen');
+    showReadQuestion();
+  }
+
+  function showReadQuestion() {
+    const q = readQuiz[readIdx];
+    document.getElementById('readNum').textContent = `${readIdx + 1} / ${READ_COUNT}`;
+    document.getElementById('readScore').textContent = readScoreVal;
+    document.getElementById('readProgress').style.width = `${(readIdx / READ_COUNT) * 100}%`;
+    document.getElementById('rTitle').textContent = q.title;
+    document.getElementById('rPassage').textContent = q.passage;
+    document.getElementById('rQuestion').textContent = q.question;
+
+    const container = document.getElementById('rOptions');
+    container.innerHTML = '';
+    q.options.forEach((o, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = o;
+      btn.onclick = () => readAnswer(btn, i, q);
+      container.appendChild(btn);
+    });
+
+    document.getElementById('rTranslation').style.display = 'none';
+    document.getElementById('rNextBtn').style.display = 'none';
+  }
+
+  function readAnswer(btn, idx, q) {
+    const buttons = document.querySelectorAll('#rOptions .opt-btn');
+    buttons.forEach(b => b.disabled = true);
+
+    if (idx === q.answer) {
+      btn.classList.add('correct');
+      readScoreVal++;
+      document.getElementById('readScore').textContent = readScoreVal;
+    } else {
+      btn.classList.add('wrong');
+      buttons[q.answer].classList.add('reveal');
+    }
+
+    document.getElementById('rTransText').textContent = q.translation;
+    document.getElementById('rTranslation').style.display = 'block';
+    const nb = document.getElementById('rNextBtn');
+    nb.style.display = 'block';
+    nb.textContent = readIdx < READ_COUNT - 1 ? '다음 문제' : '결과 보기';
+  }
+
+  function readNext() {
+    readIdx++;
+    if (readIdx < READ_COUNT) {
+      showReadQuestion();
+    } else {
+      saveRecord(getTodayKey(), 'reading', readScoreVal, READ_COUNT);
+      showReadResult();
+    }
+  }
+
+  function showReadResult() {
+    showScreen('readResultScreen');
+    const pct = Math.round((readScoreVal / READ_COUNT) * 100);
+    let emoji, title;
+    if (pct === 100) { emoji = '🏆'; title = '완벽해요!'; }
+    else if (pct >= 66) { emoji = '🎉'; title = '훌륭해요!'; }
+    else { emoji = '💪'; title = '다음엔 더 잘할 수 있어요!'; }
+
+    document.getElementById('rrEmoji').textContent = emoji;
+    document.getElementById('rrTitle').textContent = title;
+    document.getElementById('rrScore').innerHTML = `${READ_COUNT}문제 중 <span>${readScoreVal}개</span> 정답 (${pct}%)`;
+  }
+
+  // ==================== 달력 ====================
+  let calYear, calMonth;
+
+  function initCalendar() {
+    const d = new Date();
+    calYear = d.getFullYear();
+    calMonth = d.getMonth();
+  }
+
+  function calMove(dir) {
+    calMonth += dir;
+    if (calMonth < 0) { calMonth = 11; calYear--; }
+    if (calMonth > 11) { calMonth = 0; calYear++; }
+    renderCalendar();
+  }
+
+  function renderCalendar() {
+    document.getElementById('calTitle').textContent = `${calYear}년 ${calMonth + 1}월`;
+
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const today = getTodayKey();
+
+    const container = document.getElementById('calDays');
+    container.innerHTML = '';
+
+    // Empty cells before first day
+    for (let i = 0; i < firstDay; i++) {
+      const div = document.createElement('div');
+      div.className = 'cal-day empty';
+      container.appendChild(div);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const key = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const rec = getRecord(key);
+      const div = document.createElement('div');
+      let cls = 'cal-day';
+      if (key === today) cls += ' today';
+      if (rec) {
+        cls += ' has-data';
+        if (rec.vocab && rec.reading &&
+            rec.vocab.score === rec.vocab.total &&
+            rec.reading.score === rec.reading.total) {
+          cls += ' perfect';
+        }
+      }
+      div.className = cls;
+
+      let dotsHtml = '';
+      if (rec) {
+        if (rec.vocab) dotsHtml += '<span class="dot vocab"></span>';
+        if (rec.reading) dotsHtml += '<span class="dot read"></span>';
+      }
+
+      div.innerHTML = `<span class="day-num">${d}</span><div class="day-dots">${dotsHtml}</div>`;
+
+      if (rec) {
+        div.onclick = () => showCalDetail(key, rec);
+      }
+
+      container.appendChild(div);
+    }
+
+    document.getElementById('calDetail').style.display = 'none';
+  }
+
+  function showCalDetail(dateKey, rec) {
+    const parts = dateKey.split('-');
+    document.getElementById('calDetailDate').textContent =
+      `${parts[0]}년 ${parseInt(parts[1])}월 ${parseInt(parts[2])}일`;
+
+    const vs = document.getElementById('calVocabScore');
+    if (rec.vocab) {
+      vs.textContent = `${rec.vocab.score}/${rec.vocab.total}`;
+    } else {
+      vs.textContent = '-';
+    }
+
+    const rs = document.getElementById('calReadScore');
+    if (rec.reading) {
+      rs.textContent = `${rec.reading.score}/${rec.reading.total}`;
+    } else {
+      rs.textContent = '-';
+    }
+
+    document.getElementById('calDetail').style.display = 'block';
+  }
+
+  // ==================== 초기화 ====================
+  initCalendar();
+  refreshHome();
+</script>
 </body>
 </html>
