@@ -383,6 +383,39 @@
       border-radius: 50%;
       display: inline-block;
     }
+    .dot.grammar { background: #34d399; }
+
+    /* ===== 문법 ===== */
+    .grammar-sentence {
+      font-size: 17px;
+      line-height: 1.7;
+      color: #f8fafc;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .grammar-sentence .blank {
+      color: #38bdf8;
+      font-weight: 700;
+      border-bottom: 2px solid #38bdf8;
+      padding: 0 4px;
+    }
+    .grammar-category {
+      font-size: 12px;
+      color: #34d399;
+      font-weight: 600;
+      margin-bottom: 14px;
+      text-align: center;
+    }
+    .explain-box {
+      margin-top: 16px;
+      padding: 14px;
+      background: #0f172a;
+      border-radius: 10px;
+      display: none;
+      font-size: 14px;
+      color: #94a3b8;
+      line-height: 1.6;
+    }
   </style>
 </head>
 <body>
@@ -431,6 +464,15 @@
         <div class="sub">오늘의 3문제</div>
       </div>
       <div class="badge" id="readBadge">도전</div>
+    </button>
+
+    <button class="menu-btn" id="grammarMenuBtn" onclick="startGrammar()">
+      <div class="icon">📐</div>
+      <div class="info">
+        <div>문법 문제 (Part 5)</div>
+        <div class="sub">오늘의 10문제</div>
+      </div>
+      <div class="badge" id="grammarBadge">도전</div>
     </button>
   </div>
 
@@ -494,6 +536,34 @@
     <button class="btn-primary" onclick="goHome()">홈으로</button>
   </div>
 
+  <!-- ===== 문법 퀴즈 ===== -->
+  <div class="screen" id="grammarScreen">
+    <div class="quiz-stats">
+      <span id="grammarNum"></span>
+      <span>맞은 수: <span class="score" id="grammarScore">0</span></span>
+    </div>
+    <div class="quiz-progress">
+      <div class="quiz-progress-fill" id="grammarProgress" style="width:0%"></div>
+    </div>
+    <div class="card">
+      <div class="grammar-category" id="gCategory"></div>
+      <div class="grammar-sentence" id="gSentence"></div>
+      <div class="options" id="gOptions"></div>
+      <div class="explain-box" id="gExplain"></div>
+      <button class="btn-primary next-btn" id="gNextBtn" onclick="grammarNext()">다음 문제</button>
+    </div>
+  </div>
+
+  <!-- ===== 문법 결과 ===== -->
+  <div class="screen" id="grammarResultScreen">
+    <div class="result-header">
+      <div class="emoji" id="grEmoji"></div>
+      <h2 id="grTitle"></h2>
+      <div class="score-text" id="grScore"></div>
+    </div>
+    <button class="btn-primary" onclick="goHome()">홈으로</button>
+  </div>
+
   <!-- ===== 독해 결과 ===== -->
   <div class="screen" id="readResultScreen">
     <div class="result-header">
@@ -519,6 +589,7 @@
       <div class="legend">
         <span><span class="dot vocab"></span> 단어</span>
         <span><span class="dot read"></span> 독해</span>
+        <span><span class="dot grammar"></span> 문법</span>
       </div>
     </div>
     <div class="card cal-detail" id="calDetail">
@@ -532,6 +603,10 @@
           <div class="ds-label">독해</div>
           <div class="ds-value r-color" id="calReadScore">-</div>
         </div>
+        <div class="detail-score">
+          <div class="ds-label">문법</div>
+          <div class="ds-value" style="color:#34d399" id="calGrammarScore">-</div>
+        </div>
       </div>
     </div>
   </div>
@@ -540,6 +615,7 @@
 
 <script src="words.js"></script>
 <script src="readings.js"></script>
+<script src="grammar.js"></script>
 <script>
   // ==================== 유틸리티 ====================
   const VOCAB_COUNT = 10;
@@ -569,7 +645,7 @@
       d.setDate(d.getDate() - i);
       const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
       const rec = getRecord(key);
-      if (rec && (rec.vocab || rec.reading)) {
+      if (rec && (rec.vocab || rec.reading || rec.grammar)) {
         streak++;
       } else if (i > 0) {
         break;
@@ -662,9 +738,9 @@
     const vBtn = document.getElementById('vocabMenuBtn');
     const vBadge = document.getElementById('vocabBadge');
     if (rec && rec.vocab) {
-      vBtn.classList.add('done');
-      vBadge.textContent = `${rec.vocab.score}/${rec.vocab.total}`;
-      vBadge.style.background = '#64748b';
+      vBtn.classList.remove('done');
+      vBadge.textContent = `${rec.vocab.score}/${rec.vocab.total} 다시풀기`;
+      vBadge.style.background = '#6366f1';
     } else {
       vBtn.classList.remove('done');
       vBadge.textContent = '도전';
@@ -674,13 +750,25 @@
     const rBtn = document.getElementById('readMenuBtn');
     const rBadge = document.getElementById('readBadge');
     if (rec && rec.reading) {
-      rBtn.classList.add('done');
-      rBadge.textContent = `${rec.reading.score}/${rec.reading.total}`;
-      rBadge.style.background = '#64748b';
+      rBtn.classList.remove('done');
+      rBadge.textContent = `${rec.reading.score}/${rec.reading.total} 다시풀기`;
+      rBadge.style.background = '#6366f1';
     } else {
       rBtn.classList.remove('done');
       rBadge.textContent = '도전';
       rBadge.style.background = '#22c55e';
+    }
+
+    const gBtn = document.getElementById('grammarMenuBtn');
+    const gBadge = document.getElementById('grammarBadge');
+    if (rec && rec.grammar) {
+      gBtn.classList.remove('done');
+      gBadge.textContent = `${rec.grammar.score}/${rec.grammar.total} 다시풀기`;
+      gBadge.style.background = '#6366f1';
+    } else {
+      gBtn.classList.remove('done');
+      gBadge.textContent = '도전';
+      gBadge.style.background = '#22c55e';
     }
   }
 
@@ -690,12 +778,7 @@
   function startVocabQuiz() {
     const today = getTodayKey();
     const rec = getRecord(today);
-    if (rec && rec.vocab) {
-      alert('오늘의 단어 퀴즈를 이미 완료했어요!');
-      return;
-    }
-
-    const seed = dateSeed(today);
+    const seed = dateSeed(today + (rec && rec.vocab ? '_r' + Date.now() : ''));
     const indices = seededShuffle(WORDS.map((_, i) => i), seed);
     vocabQuiz = indices.slice(0, VOCAB_COUNT).map(i => WORDS[i]);
     vocabIdx = 0;
@@ -798,12 +881,7 @@
   function startReading() {
     const today = getTodayKey();
     const rec = getRecord(today);
-    if (rec && rec.reading) {
-      alert('오늘의 독해 문제를 이미 완료했어요!');
-      return;
-    }
-
-    const seed = dateSeed(today + 'read');
+    const seed = dateSeed(today + 'read' + (rec && rec.reading ? '_r' + Date.now() : ''));
     const indices = seededShuffle(READINGS.map((_, i) => i), seed);
     readQuiz = indices.slice(0, READ_COUNT).map(i => READINGS[i]);
     readIdx = 0;
@@ -879,6 +957,92 @@
     document.getElementById('rrScore').innerHTML = `${READ_COUNT}문제 중 <span>${readScoreVal}개</span> 정답 (${pct}%)`;
   }
 
+  // ==================== 문법 ====================
+  const GRAMMAR_COUNT = 10;
+  let grammarQuiz = [], grammarIdx = 0, grammarScoreVal = 0;
+
+  function startGrammar() {
+    const today = getTodayKey();
+    const rec = getRecord(today);
+    const seed = dateSeed(today + 'grammar' + (rec && rec.grammar ? '_r' + Date.now() : ''));
+    const indices = seededShuffle(GRAMMAR.map((_, i) => i), seed);
+    grammarQuiz = indices.slice(0, GRAMMAR_COUNT).map(i => GRAMMAR[i]);
+    grammarIdx = 0;
+    grammarScoreVal = 0;
+
+    showScreen('grammarScreen');
+    showGrammarQuestion();
+  }
+
+  function showGrammarQuestion() {
+    const q = grammarQuiz[grammarIdx];
+    document.getElementById('grammarNum').textContent = `${grammarIdx + 1} / ${GRAMMAR_COUNT}`;
+    document.getElementById('grammarScore').textContent = grammarScoreVal;
+    document.getElementById('grammarProgress').style.width = `${(grammarIdx / GRAMMAR_COUNT) * 100}%`;
+    document.getElementById('gCategory').textContent = q.category;
+    document.getElementById('gSentence').innerHTML = q.sentence.replace('______', '<span class="blank">______</span>');
+
+    const container = document.getElementById('gOptions');
+    container.innerHTML = '';
+    q.options.forEach((o, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'opt-btn';
+      btn.textContent = o;
+      btn.onclick = () => grammarAnswer(btn, i, q);
+      container.appendChild(btn);
+    });
+
+    document.getElementById('gExplain').style.display = 'none';
+    document.getElementById('gNextBtn').style.display = 'none';
+  }
+
+  function grammarAnswer(btn, idx, q) {
+    const buttons = document.querySelectorAll('#gOptions .opt-btn');
+    buttons.forEach(b => b.disabled = true);
+
+    if (idx === q.answer) {
+      btn.classList.add('correct');
+      grammarScoreVal++;
+      document.getElementById('grammarScore').textContent = grammarScoreVal;
+    } else {
+      btn.classList.add('wrong');
+      buttons[q.answer].classList.add('reveal');
+    }
+
+    // Show filled sentence and explanation
+    document.getElementById('gSentence').innerHTML = q.sentence.replace('______', '<span class="blank">' + q.options[q.answer] + '</span>');
+    document.getElementById('gExplain').textContent = q.explanation;
+    document.getElementById('gExplain').style.display = 'block';
+    const nb = document.getElementById('gNextBtn');
+    nb.style.display = 'block';
+    nb.textContent = grammarIdx < GRAMMAR_COUNT - 1 ? '다음 문제' : '결과 보기';
+  }
+
+  function grammarNext() {
+    grammarIdx++;
+    if (grammarIdx < GRAMMAR_COUNT) {
+      showGrammarQuestion();
+    } else {
+      saveRecord(getTodayKey(), 'grammar', grammarScoreVal, GRAMMAR_COUNT);
+      showGrammarResult();
+    }
+  }
+
+  function showGrammarResult() {
+    showScreen('grammarResultScreen');
+    const pct = Math.round((grammarScoreVal / GRAMMAR_COUNT) * 100);
+    let emoji, title;
+    if (pct === 100) { emoji = '🏆'; title = '완벽해요!'; }
+    else if (pct >= 80) { emoji = '🎉'; title = '훌륭해요!'; }
+    else if (pct >= 60) { emoji = '👍'; title = '잘했어요!'; }
+    else if (pct >= 40) { emoji = '💪'; title = '조금 더 노력!'; }
+    else { emoji = '📖'; title = '복습이 필요해요'; }
+
+    document.getElementById('grEmoji').textContent = emoji;
+    document.getElementById('grTitle').textContent = title;
+    document.getElementById('grScore').innerHTML = `${GRAMMAR_COUNT}문제 중 <span>${grammarScoreVal}개</span> 정답 (${pct}%)`;
+  }
+
   // ==================== 달력 ====================
   let calYear, calMonth;
 
@@ -920,9 +1084,10 @@
       if (key === today) cls += ' today';
       if (rec) {
         cls += ' has-data';
-        if (rec.vocab && rec.reading &&
+        if (rec.vocab && rec.reading && rec.grammar &&
             rec.vocab.score === rec.vocab.total &&
-            rec.reading.score === rec.reading.total) {
+            rec.reading.score === rec.reading.total &&
+            rec.grammar.score === rec.grammar.total) {
           cls += ' perfect';
         }
       }
@@ -932,6 +1097,7 @@
       if (rec) {
         if (rec.vocab) dotsHtml += '<span class="dot vocab"></span>';
         if (rec.reading) dotsHtml += '<span class="dot read"></span>';
+        if (rec.grammar) dotsHtml += '<span class="dot grammar"></span>';
       }
 
       div.innerHTML = `<span class="day-num">${d}</span><div class="day-dots">${dotsHtml}</div>`;
@@ -963,6 +1129,13 @@
       rs.textContent = `${rec.reading.score}/${rec.reading.total}`;
     } else {
       rs.textContent = '-';
+    }
+
+    const gs = document.getElementById('calGrammarScore');
+    if (rec.grammar) {
+      gs.textContent = `${rec.grammar.score}/${rec.grammar.total}`;
+    } else {
+      gs.textContent = '-';
     }
 
     document.getElementById('calDetail').style.display = 'block';
