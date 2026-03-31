@@ -416,6 +416,155 @@
       color: #94a3b8;
       line-height: 1.6;
     }
+
+    /* ===== 어원 ===== */
+    .etymology-box {
+      margin-top: 8px;
+      padding: 10px 14px;
+      background: #1a1a2e;
+      border-left: 3px solid #818cf8;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #a5b4fc;
+      line-height: 1.5;
+      display: none;
+    }
+    .etymology-box .ety-label {
+      font-size: 11px;
+      color: #64748b;
+      margin-bottom: 2px;
+    }
+
+    /* ===== 오답 노트 ===== */
+    .notebook-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: #64748b;
+    }
+    .notebook-empty .empty-icon { font-size: 48px; margin-bottom: 12px; }
+    .nb-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nb-section-title .count {
+      background: #334155;
+      padding: 1px 8px;
+      border-radius: 10px;
+      font-size: 12px;
+    }
+    .nb-word-card {
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .nb-word-card .nb-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .nb-word-card .nb-word {
+      font-size: 18px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+    .nb-word-card .nb-phonetic {
+      font-size: 13px;
+      color: #64748b;
+    }
+    .nb-word-card .nb-meaning {
+      font-size: 14px;
+      color: #38bdf8;
+      margin-top: 4px;
+    }
+    .nb-word-card .nb-etymology {
+      font-size: 12px;
+      color: #a5b4fc;
+      margin-top: 4px;
+    }
+    .nb-word-card .nb-example {
+      font-size: 13px;
+      color: #94a3b8;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+    .nb-word-card .nb-date {
+      font-size: 11px;
+      color: #475569;
+      margin-top: 6px;
+    }
+    .nb-grammar-card {
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 8px;
+    }
+    .nb-grammar-card .nb-cat {
+      font-size: 11px;
+      color: #34d399;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .nb-grammar-card .nb-sentence {
+      font-size: 14px;
+      color: #f8fafc;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+    .nb-grammar-card .nb-answer {
+      font-size: 13px;
+      color: #38bdf8;
+    }
+    .nb-grammar-card .nb-explain {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+    .nb-grammar-card .nb-date {
+      font-size: 11px;
+      color: #475569;
+      margin-top: 6px;
+    }
+    .nb-clear-btn {
+      background: none;
+      border: 1px solid #475569;
+      color: #94a3b8;
+      border-radius: 8px;
+      padding: 8px 16px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-top: 10px;
+      width: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .nb-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .nb-tab {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      background: #0f172a;
+      color: #94a3b8;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .nb-tab.active {
+      background: #334155;
+      color: #f8fafc;
+    }
   </style>
 </head>
 <body>
@@ -424,6 +573,7 @@
   <!-- 탭 네비게이션 -->
   <div class="tab-nav">
     <button class="tab-btn active" onclick="showTab('home')">홈</button>
+    <button class="tab-btn" onclick="showTab('notebook')">오답노트</button>
     <button class="tab-btn" onclick="showTab('calendar')">달력</button>
   </div>
 
@@ -495,6 +645,10 @@
       <div class="example-box" id="vExample">
         <div class="en" id="vExEn"></div>
         <div class="ko" id="vExKo"></div>
+      </div>
+      <div class="etymology-box" id="vEtymology">
+        <div class="ety-label">어원/단어 분석</div>
+        <div id="vEtyText"></div>
       </div>
       <button class="btn-primary next-btn" id="vNextBtn" onclick="vocabNext()">다음 문제</button>
     </div>
@@ -572,6 +726,19 @@
       <div class="score-text" id="rrScore"></div>
     </div>
     <button class="btn-primary" onclick="goHome()">홈으로</button>
+  </div>
+
+  <!-- ===== 오답 노트 ===== -->
+  <div class="screen" id="notebookScreen">
+    <div class="card">
+      <h2 style="font-size:18px; margin-bottom:4px;">오답 노트</h2>
+      <p style="font-size:13px; color:#94a3b8;">틀린 문제를 모아서 복습하세요</p>
+    </div>
+    <div class="nb-tabs">
+      <button class="nb-tab active" onclick="showNbTab('vocab')">단어</button>
+      <button class="nb-tab" onclick="showNbTab('grammar')">문법</button>
+    </div>
+    <div id="nbContent"></div>
   </div>
 
   <!-- ===== 달력 ===== -->
@@ -700,12 +867,19 @@
   // ==================== 탭 & 네비게이션 ====================
   function showTab(tab) {
     document.querySelectorAll('.tab-btn').forEach((b, i) => {
-      b.classList.toggle('active', (tab === 'home' && i === 0) || (tab === 'calendar' && i === 1));
+      b.classList.toggle('active',
+        (tab === 'home' && i === 0) ||
+        (tab === 'notebook' && i === 1) ||
+        (tab === 'calendar' && i === 2)
+      );
     });
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     if (tab === 'home') {
       document.getElementById('homeScreen').classList.add('active');
       refreshHome();
+    } else if (tab === 'notebook') {
+      document.getElementById('notebookScreen').classList.add('active');
+      renderNotebook('vocab');
     } else {
       document.getElementById('calendarScreen').classList.add('active');
       renderCalendar();
@@ -810,6 +984,7 @@
     });
 
     document.getElementById('vExample').style.display = 'none';
+    document.getElementById('vEtymology').style.display = 'none';
     document.getElementById('vNextBtn').style.display = 'none';
   }
 
@@ -824,12 +999,22 @@
     } else {
       btn.classList.add('wrong');
       vocabWrong.push(q);
+      saveWrongWord(q);
       buttons.forEach(b => { if (b.textContent === q.meaning) b.classList.add('reveal'); });
     }
 
     document.getElementById('vExEn').textContent = `"${q.exEn}"`;
     document.getElementById('vExKo').textContent = q.exKo;
     document.getElementById('vExample').style.display = 'block';
+
+    // Show etymology
+    const etyBox = document.getElementById('vEtymology');
+    if (q.etymology) {
+      document.getElementById('vEtyText').textContent = q.etymology;
+      etyBox.style.display = 'block';
+    } else {
+      etyBox.style.display = 'none';
+    }
     const nb = document.getElementById('vNextBtn');
     nb.style.display = 'block';
     nb.textContent = vocabIdx < VOCAB_COUNT - 1 ? '다음 문제' : '결과 보기';
@@ -1007,6 +1192,7 @@
     } else {
       btn.classList.add('wrong');
       buttons[q.answer].classList.add('reveal');
+      saveWrongGrammar(q);
     }
 
     // Show filled sentence and explanation
@@ -1041,6 +1227,103 @@
     document.getElementById('grEmoji').textContent = emoji;
     document.getElementById('grTitle').textContent = title;
     document.getElementById('grScore').innerHTML = `${GRAMMAR_COUNT}문제 중 <span>${grammarScoreVal}개</span> 정답 (${pct}%)`;
+  }
+
+  // ==================== 오답 노트 ====================
+  let currentNbTab = 'vocab';
+
+  function saveWrongWord(q) {
+    const wrongs = JSON.parse(localStorage.getItem('wrongWords') || '[]');
+    // Avoid duplicates
+    if (!wrongs.find(w => w.word === q.word)) {
+      wrongs.unshift({
+        word: q.word,
+        phonetic: q.phonetic,
+        pos: q.pos,
+        meaning: q.meaning,
+        etymology: q.etymology || '',
+        exEn: q.exEn,
+        exKo: q.exKo,
+        date: getTodayKey()
+      });
+      localStorage.setItem('wrongWords', JSON.stringify(wrongs));
+    }
+  }
+
+  function saveWrongGrammar(q) {
+    const wrongs = JSON.parse(localStorage.getItem('wrongGrammar') || '[]');
+    const key = q.sentence;
+    if (!wrongs.find(w => w.sentence === key)) {
+      wrongs.unshift({
+        sentence: q.sentence,
+        category: q.category,
+        answer: q.options[q.answer],
+        explanation: q.explanation,
+        date: getTodayKey()
+      });
+      localStorage.setItem('wrongGrammar', JSON.stringify(wrongs));
+    }
+  }
+
+  function showNbTab(tab) {
+    currentNbTab = tab;
+    document.querySelectorAll('.nb-tab').forEach((b, i) => {
+      b.classList.toggle('active', (tab === 'vocab' && i === 0) || (tab === 'grammar' && i === 1));
+    });
+    renderNotebook(tab);
+  }
+
+  function renderNotebook(tab) {
+    const container = document.getElementById('nbContent');
+
+    if (tab === 'vocab') {
+      const wrongs = JSON.parse(localStorage.getItem('wrongWords') || '[]');
+      if (wrongs.length === 0) {
+        container.innerHTML = '<div class="notebook-empty"><div class="empty-icon">📝</div><p>틀린 단어가 없습니다.<br>퀴즈를 풀면 여기에 쌓여요!</p></div>';
+        return;
+      }
+      let html = `<div class="card"><div class="nb-section-title">틀린 단어 <span class="count">${wrongs.length}개</span></div>`;
+      wrongs.forEach(w => {
+        html += `<div class="nb-word-card">
+          <div class="nb-top"><span class="nb-word">${w.word}</span><span class="nb-phonetic">${w.phonetic}</span></div>
+          <div class="nb-meaning">${w.pos} | ${w.meaning}</div>
+          ${w.etymology ? `<div class="nb-etymology">${w.etymology}</div>` : ''}
+          <div class="nb-example">"${w.exEn}"<br>${w.exKo}</div>
+          <div class="nb-date">${w.date}</div>
+        </div>`;
+      });
+      html += `<button class="nb-clear-btn" onclick="clearWrongs('vocab')">전체 삭제</button></div>`;
+      container.innerHTML = html;
+    } else {
+      const wrongs = JSON.parse(localStorage.getItem('wrongGrammar') || '[]');
+      if (wrongs.length === 0) {
+        container.innerHTML = '<div class="notebook-empty"><div class="empty-icon">📐</div><p>틀린 문법 문제가 없습니다.<br>퀴즈를 풀면 여기에 쌓여요!</p></div>';
+        return;
+      }
+      let html = `<div class="card"><div class="nb-section-title">틀린 문법 <span class="count">${wrongs.length}개</span></div>`;
+      wrongs.forEach(w => {
+        html += `<div class="nb-grammar-card">
+          <div class="nb-cat">${w.category}</div>
+          <div class="nb-sentence">${w.sentence.replace('______', '<b style="color:#38bdf8">' + w.answer + '</b>')}</div>
+          <div class="nb-answer">정답: ${w.answer}</div>
+          <div class="nb-explain">${w.explanation}</div>
+          <div class="nb-date">${w.date}</div>
+        </div>`;
+      });
+      html += `<button class="nb-clear-btn" onclick="clearWrongs('grammar')">전체 삭제</button></div>`;
+      container.innerHTML = html;
+    }
+  }
+
+  function clearWrongs(type) {
+    if (confirm('정말 삭제하시겠습니까?')) {
+      if (type === 'vocab') {
+        localStorage.removeItem('wrongWords');
+      } else {
+        localStorage.removeItem('wrongGrammar');
+      }
+      renderNotebook(currentNbTab);
+    }
   }
 
   // ==================== 달력 ====================
